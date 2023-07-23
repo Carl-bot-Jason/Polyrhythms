@@ -1,86 +1,97 @@
-let canvas = $('#plane');
-canvas.get(0).width = $('body').innerWidth();
-canvas.get(0).height = $('body').innerHeight();
-let canW = canvas.width(), canH = canvas.height();
-let ctx = canvas.get(0).getContext('2d');
+let bgCanvas = $('#bg-canvas'), fgCanvas = $('#fg-canvas'), gradDiv = $('#gradient');
+
+bgCanvas.get(0).width = $('body').innerWidth();
+bgCanvas.get(0).height = $('body').innerHeight();
+
+fgCanvas.get(0).width = $('body').innerWidth();
+fgCanvas.get(0).height = $('body').innerHeight();
+
+gradDiv.height($('body').innerHeight());
+
+let canW = bgCanvas.width(),
+	canH = bgCanvas.height(),
+	baseHeight = canH * 0.7,
+	arcCount = 13,
+	radIncrement = ((canW * 0.6 * 0.5) - 80) / (arcCount - 1),
+	firstOffset = 80,
+	arcConfig = [];
 
 let colors = [
-	'#FFF4D4',
-	'#FAE0D3',
-	'#FFDBE9',
-	'#C2E6C2',
-	'#FEBDB9',
-	'#ECDBFF',
-	'#CAEAFF',
-	'#D9CCDE',
-	'#F4F3BB',
-	'#F5CEE0',
-	'#F4D7F5',
-	'#C9DCFC',
-	'#C8F4F3'
+	'#807865',
+	'#96867e',
+	'#9c848d',
+	'#799179',
+	'#7d5c5a',
+	'#736a7d',
+	'#637480',
+	'#726a75',
+	'#757558',
+	'#7d6671',
+	'#685a69',
+	'#4c5461',
+	'#657d7c'
 ];
 
-let arcConfig = [];
-for(let i = 0; i < colors.length; i++){
-	let obj = {};
-	obj.color = colors[i];
-	obj.radVelocity = Math.PI * (50 - i) / (15 * 60 * 1000);
+for(let i = 0; i < arcCount; i++){
+	let obj = {
+		color: colors[i],
+		radVelocity: Math.PI * (45 - i) / (15 * 60 * 1000),
+		angle: Math.PI,
+		radius: firstOffset + i * radIncrement
+	};
 	arcConfig.push(obj);
 }
 
+// Background Canvas
+
+let ctx = bgCanvas.get(0).getContext('2d');
+
+// Base line
+	
+ctx.lineWidth = 2;
+ctx.strokeStyle = 'white';
+// ctx.beginPath();
+// ctx.moveTo(canW * 0.20, baseHeight);
+// ctx.lineTo(canW * 0.80, baseHeight);
+// ctx.stroke();
+
+// Arcs
+
+for(let obj of arcConfig){
+	ctx.beginPath();
+	ctx.strokeStyle = obj.color;
+	ctx.arc(canW * 0.50, baseHeight, obj.radius, Math.PI, 2 * Math.PI);
+	ctx.stroke();
+}
+
 let prevTime = new Date();
-	angle = Math.PI,
-	radVelocity = Math.PI / 8000;
+
+// Foreground Canvas
+
+ctx = fgCanvas.get(0).getContext('2d');
+ctx.lineWidth = 4;
+ctx.fillStyle = 'black';
+ctx.strokeStyle = 'white';
 
 function draw(){
 	ctx.clearRect(0, 0, canW, canH);
-	// ctx.restore();
-	
-	// Base line
-	
-	ctx.lineWidth = 3;
-	// ctx.beginPath();
-	// ctx.moveTo(canW * 0.20, canH * 0.7);
-	// ctx.lineTo(canW * 0.80, canH * 0.7);
-	// ctx.stroke();
-	// ctx.closePath();
-	
-	
-	// Arcs
-	
-	let arcCount = 13,
-		radIncrement = ((canW * 0.60 * 0.5) - 80) / (arcCount - 1),
-		firstOffset = 80;
-	
-	for(let i = 0; i < arcConfig.length; i++){
-		ctx.beginPath();
-		ctx.strokeStyle = arcConfig[i].color;
-		ctx.arc(canW * 0.50, canH * 0.7, firstOffset + i * radIncrement, Math.PI, 2 * Math.PI);
-		ctx.stroke();
-		ctx.closePath();
-	}
-	
+	let curTime = new Date(), timeDiff = curTime - prevTime;
+
 	// Dots
 
-	let curRadius = firstOffset - radIncrement;
-	let curTime = new Date(), timeDiff = new Date() - prevTime;
-	angle += radVelocity * timeDiff;
-
-	if(angle > 2 * Math.PI || angle < Math.PI)
-		radVelocity *= -1;
-
 	for(let obj of arcConfig){
-		curRadius += radIncrement;
+		obj.angle += obj.radVelocity * timeDiff;
+		if(obj.angle > 2 * Math.PI || obj.angle < Math.PI)
+			obj.radVelocity *= -1;
+
 		ctx.beginPath();
-		ctx.arc(canW * 0.5 - curRadius * Math.cos(angle), canH * 0.7 + curRadius * Math.sin(angle), 11, 0, Math.PI * 2);
+		ctx.arc(canW * 0.5 - obj.radius * Math.cos(obj.angle), baseHeight + obj.radius * Math.sin(obj.angle), 11, 0, Math.PI * 2);
+		ctx.stroke();
 		ctx.fill();
-		ctx.closePath();
 	}
 
-	// ctx.save();
 	prevTime = curTime;
 	window.requestAnimationFrame(draw);
-	// setInterval(() => window.requestAnimationFrame(draw), 500);
 }
 
 draw();

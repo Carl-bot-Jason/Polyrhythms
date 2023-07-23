@@ -5,15 +5,27 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="/dist/output.css">
 	<script src="https://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-	<title>Polyrythms</title>
+	<title>Polyrhythms</title>
 </head>
-<body class="h-full flex flex-col">
-	<h1 id="title" class=
-		"font-sans text-[50px] text-red-400 text-center py-5">
-		Polyrythms</h1>
-	<canvas id="plane"
-	class=
-		"flex-grow">
+<body class="h-full relative bg-stars bg-cover overflow-hidden -z-20">
+	<i><h1
+		id="title"
+		class="absolute w-full text-[60px] text-slate-800 text-center pt-20 font-pixel z-10">
+		Polyrhythms
+	</h1></i>
+	<i><h1
+		id="title"
+		class="absolute top-1 left-1 w-full text-[60px] text-green-200 text-center pt-20 font-pixel -z-10">
+		Polyrhythms
+	</h1></i>
+	<div id="gradient" class="absolute top-[140px] left-[0px] w-full bg-gradient-to-t from-black to-transparent to-70% z-0"></div>
+	<canvas
+		id="fg-canvas"
+		class="absolute top-[140px] left-[0px] z-10">
+	</canvas>
+	<canvas
+		id="bg-canvas"
+		class="absolute top-[140px] left-[0px] -z-10">
 	</canvas>
 	<script src="/src/app.js"></script>
 </body>

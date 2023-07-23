@@ -2,7 +2,14 @@
 module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'stars': 'url(\'/assets/stars.jpg\')'
+      },
+      fontFamily: {
+        'pixel': ['pixel', 'sans-serif']
+      }
+    },
   },
   plugins: [],
 }
