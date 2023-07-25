@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        'stars': 'url(\'/assets/stars.jpg\')'
+        'stars': 'url(\'/assets/stars.png\')'
       },
       fontFamily: {
         'pixel': ['pixel', 'sans-serif']

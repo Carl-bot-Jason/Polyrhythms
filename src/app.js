@@ -14,7 +14,9 @@ let canW = bgCanvas.width(),
 	arcCount = 13,
 	radIncrement = ((canW * 0.6 * 0.5) - 80) / (arcCount - 1),
 	firstOffset = 80,
-	arcConfig = [];
+	arcConfig = [],
+	maxAngle = Math.PI * 2,
+	fillGradVelocity = 255 / 1000;
 
 let colors = [
 	'#807865',
@@ -35,9 +37,10 @@ let colors = [
 for(let i = 0; i < arcCount; i++){
 	let obj = {
 		color: colors[i],
-		radVelocity: Math.PI * (45 - i) / (15 * 60 * 1000),
-		angle: Math.PI,
-		radius: firstOffset + i * radIncrement
+		angVelocity: Math.PI * (80 - i) / (15 * 60 * 1000),	
+		radius: firstOffset + i * radIncrement,
+		fill: 0,
+		
 	};
 	arcConfig.push(obj);
 }
@@ -48,12 +51,12 @@ let ctx = bgCanvas.get(0).getContext('2d');
 
 // Base line
 	
-ctx.lineWidth = 2;
+ctx.lineWidth = 4;
 ctx.strokeStyle = 'white';
-// ctx.beginPath();
-// ctx.moveTo(canW * 0.20, baseHeight);
-// ctx.lineTo(canW * 0.80, baseHeight);
-// ctx.stroke();
+ctx.beginPath();
+ctx.moveTo(canW * 0.19, baseHeight + 2);
+ctx.lineTo(canW * 0.81, baseHeight + 2);
+ctx.stroke();
 
 // Arcs
 
@@ -64,28 +67,47 @@ for(let obj of arcConfig){
 	ctx.stroke();
 }
 
-let prevTime = new Date();
+let startTime = new Date(), prevTime = new Date();
 
 // Foreground Canvas
 
 ctx = fgCanvas.get(0).getContext('2d');
 ctx.lineWidth = 4;
-ctx.fillStyle = 'black';
 ctx.strokeStyle = 'white';
 
 function draw(){
 	ctx.clearRect(0, 0, canW, canH);
-	let curTime = new Date(), timeDiff = curTime - prevTime;
+	const curTime = new Date(), totalTime = curTime - startTime, timeDiff = curTime - prevTime;
 
 	// Dots
-
+	
 	for(let obj of arcConfig){
-		obj.angle += obj.radVelocity * timeDiff;
-		if(obj.angle > 2 * Math.PI || obj.angle < Math.PI)
-			obj.radVelocity *= -1;
+		ctx.fillStyle = 'black';
+
+		if(obj.fill > 0){
+			ctx.fillStyle = `rgb(${Math.floor(obj.fill)}, ${Math.floor(obj.fill)}, ${Math.floor(obj.fill)})`;
+			obj.fill -= fillGradVelocity * timeDiff;
+			if(obj.fill < 0)
+				obj.fill = 0;
+		}
+
+		let angle = (totalTime * obj.angVelocity) % maxAngle;
+		if(angle > Math.PI){
+			angle = maxAngle - angle;
+			if(!obj.fillChange){
+				obj.fill = 255;
+				obj.fillChange = true;
+			}
+		}
+		else{
+			if(obj.fillChange){
+				obj.fill = 255;
+				obj.fillChange = false;
+			}
+		}
 
 		ctx.beginPath();
-		ctx.arc(canW * 0.5 - obj.radius * Math.cos(obj.angle), baseHeight + obj.radius * Math.sin(obj.angle), 11, 0, Math.PI * 2);
+		ctx.arc(canW * 0.5 - obj.radius * Math.cos(angle), baseHeight - obj.radius * Math.sin(angle), 11, 0, Math.PI * 2);
 		ctx.stroke();
 		ctx.fill();
 	}
